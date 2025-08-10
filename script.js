@@ -4,8 +4,6 @@ const timeDisplay = document.getElementById("time");
 const startBtn = document.getElementById("start-btn");
 const endScreen = document.getElementById("end-screen");
 const finalScoreDisplay = document.getElementById("final-score");
-const playAgainBtn = document.getElementById("play-again");
-
 let score = 0;
 let timeLeft = 60;
 let gameInterval;
@@ -14,10 +12,9 @@ let popSound = new Audio("pop.mp3");
 
 function showStartScreen() {
     gameArea.innerHTML = `
-        <div style="text-align:center;">
+        <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;">
             <img src="logo.png" alt="Union Logo" style="width:150px;margin-bottom:20px;">
             <button id="start-btn" style="padding:10px 20px;font-size:16px;">Start Game</button>
-            <p style="position:absolute;bottom:10px;width:100%;text-align:center;font-size:14px;color:#fff;">Built by @weirdofact</p>
         </div>
     `;
     document.getElementById("start-btn").addEventListener("click", startGame);
@@ -30,8 +27,10 @@ function startGame() {
     scoreDisplay.textContent = score;
     timeDisplay.textContent = timeLeft;
     document.getElementById("scoreboard").style.display = "block";
-    endScreen.style.display = "none";
     gameArea.innerHTML = "";
+    endScreen.style.display = "none";
+    clearInterval(timerInterval);
+    clearInterval(gameInterval);
     timerInterval = setInterval(updateTime, 1000);
     gameInterval = setInterval(spawnBubbles, 800);
 }
@@ -69,15 +68,14 @@ function endGame() {
     clearInterval(gameInterval);
     clearInterval(timerInterval);
     gameArea.innerHTML = `
-        <div style="text-align:center;">
+        <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;">
             <h2>Time's Up!</h2>
             <p>Your Score: ${score}</p>
             <button id="play-again" style="padding:10px 20px;font-size:16px;">Play Again</button>
-            <p style="position:absolute;bottom:10px;width:100%;text-align:center;font-size:14px;color:#fff;">Built by @weirdofact</p>
         </div>
     `;
     document.getElementById("scoreboard").style.display = "none";
-    document.getElementById("play-again").addEventListener("click", showStartScreen);
+    document.getElementById("play-again").addEventListener("click", startGame);
 }
 
 showStartScreen();
