@@ -1,83 +1,82 @@
 const gameArea = document.getElementById("game-area");
-const scoreSpan = document.getElementById("score");
-const timeSpan = document.getElementById("time");
+const scoreDisplay = document.getElementById("score");
+const timeDisplay = document.getElementById("time");
 const startBtn = document.getElementById("start-btn");
 const endScreen = document.getElementById("end-screen");
-const finalScore = document.getElementById("final-score");
-const playAgainBtn = document.getElementById("play-again");
-
+const finalScoreDisplay = document.getElementById("final-score");
 let score = 0;
 let timeLeft = 60;
-let timer;
-let gameActive = false;
+let gameInterval;
+let timerInterval;
+let popSound = new Audio("pop.mp3");
 
-const endLogo = document.createElement("img");
-endLogo.src = "logo.png";
-endLogo.alt = "Union Logo";
-endLogo.style.width = "100px";
-endLogo.style.display = "block";
-endLogo.style.margin = "0 auto 15px auto";
-endScreen.insertBefore(endLogo, endScreen.firstChild);
-
-endScreen.style.display = "flex";
-endScreen.style.flexDirection = "column";
-endScreen.style.alignItems = "center";
-endScreen.style.justifyContent = "center";
-endScreen.style.height = "100%";
-endScreen.style.textAlign = "center";
+function showStartScreen() {
+    gameArea.innerHTML = `
+        <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;">
+            <img src="logo.png" alt="Union Logo" style="width:150px;margin-bottom:20px;">
+            <p style="color:#ff0040;font-size:14px;">Built by @weirdofact</p>
+        </div>
+    `;
+    document.getElementById("scoreboard").style.display = "none";
+    // Start game automatically after clicking logo
+    gameArea.querySelector("img").addEventListener("click", startGame);
+}
 
 function startGame() {
     score = 0;
     timeLeft = 60;
-    scoreSpan.textContent = score;
-    timeSpan.textContent = timeLeft;
-    endScreen.style.display = "none";
-    gameArea.style.display = "block";
-    gameActive = true;
-    spawnBubbles();
-    timer = setInterval(updateTime, 1000);
-}
-
-function endGame() {
-    clearInterval(timer);
-    gameActive = false;
-    finalScore.textContent = score;
+    scoreDisplay.textContent = score;
+    timeDisplay.textContent = timeLeft;
+    document.getElementById("scoreboard").style.display = "block";
     gameArea.innerHTML = "";
-    gameArea.style.display = "none";
-    endScreen.style.display = "flex";
+    endScreen.style.display = "none";
+    clearInterval(timerInterval);
+    clearInterval(gameInterval);
+    timerInterval = setInterval(updateTime, 1000);
+    gameInterval = setInterval(spawnBubbles, 800);
 }
 
 function updateTime() {
     timeLeft--;
-    timeSpan.textContent = timeLeft;
+    timeDisplay.textContent = timeLeft;
     if (timeLeft <= 0) {
         endGame();
     }
 }
 
 function spawnBubbles() {
-    if (!gameActive) return;
-    gameArea.innerHTML = "";
     const bubbleCount = Math.floor(Math.random() * 3) + 3;
     for (let i = 0; i < bubbleCount; i++) {
-        const bubble = document.createElement("img");
-        bubble.src = "logo.png";
+        const bubble = document.createElement("div");
         bubble.classList.add("bubble");
-        bubble.style.top = Math.random() * 80 + "%";
-        bubble.style.left = Math.random() * 80 + "%";
-        bubble.addEventListener("click", popBubble);
+        bubble.style.left = Math.random() * (gameArea.clientWidth - 50) + "px";
+        bubble.style.top = Math.random() * (gameArea.clientHeight - 50) + "px";
+        bubble.style.backgroundImage = "url('logo.png')";
+        bubble.style.backgroundSize = "cover";
+        bubble.addEventListener("click", () => {
+            score++;
+            scoreDisplay.textContent = score;
+            popSound.currentTime = 0;
+            popSound.play();
+            bubble.remove();
+        });
         gameArea.appendChild(bubble);
+        setTimeout(() => bubble.remove(), 2000);
     }
-    setTimeout(spawnBubbles, 800);
 }
 
-function popBubble(e) {
-    score++;
-    scoreSpan.textContent = score;
-    const popSound = new Audio("pop.mp3");
-    popSound.play();
-    e.target.remove();
+function endGame() {
+    clearInterval(gameInterval);
+    clearInterval(timerInterval);
+    gameArea.innerHTML = `
+        <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;">
+            <h2>Time's Up!</h2>
+            <p>Your Score: ${score}</p>
+            <button id="play-again" style="padding:10px 20px;font-size:16px;">Play Again</button>
+        </div>
+    `;
+    document.getElementById("scoreboard").style.display = "none";
+    document.getElementById("play-again").addEventListener("click", startGame);
 }
 
-startBtn.addEventListener("click", startGame);
-playAgainBtn.addEventListener("click", startGame);
+showStartScreen();
