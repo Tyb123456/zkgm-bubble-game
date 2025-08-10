@@ -1,49 +1,79 @@
+const gameArea = document.getElementById("game-area");
+const scoreEl = document.getElementById("score");
+const timeEl = document.getElementById("time");
+const startBtn = document.getElementById("start-btn");
+const endScreen = document.getElementById("end-screen");
+const finalScoreEl = document.getElementById("final-score");
+const playAgainBtn = document.getElementById("play-again");
 
 let score = 0;
 let timeLeft = 60;
-let timer;
 let gameInterval;
+let timerInterval;
 
-document.getElementById('start-btn').addEventListener('click', startGame);
-document.getElementById('play-again').addEventListener('click', startGame);
+function playPopSound() {
+    const pop = new Audio("pop.mp3");
+    pop.play();
+}
+
+function createBubble() {
+    const bubble = document.createElement("img");
+    bubble.src = "logo.png";
+    bubble.classList.add("bubble");
+
+    const size = Math.random() * 40 + 40;
+    bubble.style.width = `${size}px`;
+    bubble.style.height = `${size}px`;
+
+    bubble.style.left = `${Math.random() * (gameArea.clientWidth - size)}px`;
+    bubble.style.top = `${Math.random() * (gameArea.clientHeight - size)}px`;
+
+    bubble.addEventListener("click", () => {
+        score++;
+        scoreEl.textContent = score;
+        playPopSound();
+        bubble.remove();
+    });
+
+    gameArea.appendChild(bubble);
+
+    setTimeout(() => {
+        if (bubble.parentElement) bubble.remove();
+    }, 1500);
+}
+
+function spawnBubbles() {
+    const numBubbles = Math.floor(Math.random() * 3) + 3;
+    for (let i = 0; i < numBubbles; i++) {
+        createBubble();
+    }
+}
 
 function startGame() {
     score = 0;
     timeLeft = 60;
-    document.getElementById('score').innerText = score;
-    document.getElementById('time').innerText = timeLeft;
-    document.getElementById('end-screen').style.display = 'none';
-    document.getElementById('start-btn').style.display = 'none';
-    document.getElementById('game-area').innerHTML = '';
-    
-    timer = setInterval(() => {
-        timeLeft--;
-        document.getElementById('time').innerText = timeLeft;
-        if (timeLeft <= 0) {
-            endGame();
-        }
-    }, 1000);
-    
-    gameInterval = setInterval(createBubble, 800);
-}
+    scoreEl.textContent = score;
+    timeEl.textContent = timeLeft;
+    gameArea.innerHTML = "";
+    endScreen.style.display = "none";
+    startBtn.style.display = "none";
 
-function createBubble() {
-    const bubble = document.createElement('div');
-    bubble.classList.add('bubble');
-    bubble.style.top = Math.random() * 450 + 'px';
-    bubble.style.left = Math.random() * 350 + 'px';
-    bubble.addEventListener('click', () => {
-        score++;
-        document.getElementById('score').innerText = score;
-        bubble.remove();
-    });
-    document.getElementById('game-area').appendChild(bubble);
-    setTimeout(() => bubble.remove(), 2000);
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        timeEl.textContent = timeLeft;
+        if (timeLeft <= 0) endGame();
+    }, 1000);
+
+    gameInterval = setInterval(spawnBubbles, 800);
 }
 
 function endGame() {
-    clearInterval(timer);
     clearInterval(gameInterval);
-    document.getElementById('final-score').innerText = score;
-    document.getElementById('end-screen').style.display = 'block';
+    clearInterval(timerInterval);
+    gameArea.innerHTML = "";
+    finalScoreEl.textContent = score;
+    endScreen.style.display = "block";
 }
+
+startBtn.addEventListener("click", startGame);
+playAgainBtn.addEventListener("click", startGame);
