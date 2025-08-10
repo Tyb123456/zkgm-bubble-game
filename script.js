@@ -14,12 +14,11 @@ function showStartScreen() {
     gameArea.innerHTML = `
         <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;">
             <img src="logo.png" alt="Union Logo" style="width:150px;margin-bottom:20px;">
-            <p style="color:#ff0040;font-size:14px;">Built by @weirdofact</p>
+            <button id="start-btn" style="padding:10px 20px;font-size:16px;">Start Game</button>
         </div>
     `;
+    document.getElementById("start-btn").addEventListener("click", startGame);
     document.getElementById("scoreboard").style.display = "none";
-    // Start game automatically after clicking logo
-    gameArea.querySelector("img").addEventListener("click", startGame);
 }
 
 function startGame() {
