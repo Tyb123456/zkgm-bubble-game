@@ -1,79 +1,83 @@
 const gameArea = document.getElementById("game-area");
-const scoreEl = document.getElementById("score");
-const timeEl = document.getElementById("time");
+const scoreDisplay = document.getElementById("score");
+const timeDisplay = document.getElementById("time");
 const startBtn = document.getElementById("start-btn");
 const endScreen = document.getElementById("end-screen");
-const finalScoreEl = document.getElementById("final-score");
+const finalScoreDisplay = document.getElementById("final-score");
 const playAgainBtn = document.getElementById("play-again");
 
 let score = 0;
 let timeLeft = 60;
 let gameInterval;
 let timerInterval;
+let popSound = new Audio("pop.mp3");
 
-function playPopSound() {
-    const pop = new Audio("pop.mp3");
-    pop.play();
-}
-
-function createBubble() {
-    const bubble = document.createElement("img");
-    bubble.src = "logo.png";
-    bubble.classList.add("bubble");
-
-    const size = Math.random() * 40 + 40;
-    bubble.style.width = `${size}px`;
-    bubble.style.height = `${size}px`;
-
-    bubble.style.left = `${Math.random() * (gameArea.clientWidth - size)}px`;
-    bubble.style.top = `${Math.random() * (gameArea.clientHeight - size)}px`;
-
-    bubble.addEventListener("click", () => {
-        score++;
-        scoreEl.textContent = score;
-        playPopSound();
-        bubble.remove();
-    });
-
-    gameArea.appendChild(bubble);
-
-    setTimeout(() => {
-        if (bubble.parentElement) bubble.remove();
-    }, 1500);
-}
-
-function spawnBubbles() {
-    const numBubbles = Math.floor(Math.random() * 3) + 3;
-    for (let i = 0; i < numBubbles; i++) {
-        createBubble();
-    }
+function showStartScreen() {
+    gameArea.innerHTML = `
+        <div style="text-align:center;">
+            <img src="logo.png" alt="Union Logo" style="width:150px;margin-bottom:20px;">
+            <button id="start-btn" style="padding:10px 20px;font-size:16px;">Start Game</button>
+            <p style="position:absolute;bottom:10px;width:100%;text-align:center;font-size:14px;color:#fff;">Built by @weirdofact</p>
+        </div>
+    `;
+    document.getElementById("start-btn").addEventListener("click", startGame);
+    document.getElementById("scoreboard").style.display = "none";
 }
 
 function startGame() {
     score = 0;
     timeLeft = 60;
-    scoreEl.textContent = score;
-    timeEl.textContent = timeLeft;
-    gameArea.innerHTML = "";
+    scoreDisplay.textContent = score;
+    timeDisplay.textContent = timeLeft;
+    document.getElementById("scoreboard").style.display = "block";
     endScreen.style.display = "none";
-    startBtn.style.display = "none";
-
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        timeEl.textContent = timeLeft;
-        if (timeLeft <= 0) endGame();
-    }, 1000);
-
+    gameArea.innerHTML = "";
+    timerInterval = setInterval(updateTime, 1000);
     gameInterval = setInterval(spawnBubbles, 800);
+}
+
+function updateTime() {
+    timeLeft--;
+    timeDisplay.textContent = timeLeft;
+    if (timeLeft <= 0) {
+        endGame();
+    }
+}
+
+function spawnBubbles() {
+    const bubbleCount = Math.floor(Math.random() * 3) + 3;
+    for (let i = 0; i < bubbleCount; i++) {
+        const bubble = document.createElement("div");
+        bubble.classList.add("bubble");
+        bubble.style.left = Math.random() * (gameArea.clientWidth - 50) + "px";
+        bubble.style.top = Math.random() * (gameArea.clientHeight - 50) + "px";
+        bubble.style.backgroundImage = "url('logo.png')";
+        bubble.style.backgroundSize = "cover";
+        bubble.addEventListener("click", () => {
+            score++;
+            scoreDisplay.textContent = score;
+            popSound.currentTime = 0;
+            popSound.play();
+            bubble.remove();
+        });
+        gameArea.appendChild(bubble);
+        setTimeout(() => bubble.remove(), 2000);
+    }
 }
 
 function endGame() {
     clearInterval(gameInterval);
     clearInterval(timerInterval);
-    gameArea.innerHTML = "";
-    finalScoreEl.textContent = score;
-    endScreen.style.display = "block";
+    gameArea.innerHTML = `
+        <div style="text-align:center;">
+            <h2>Time's Up!</h2>
+            <p>Your Score: ${score}</p>
+            <button id="play-again" style="padding:10px 20px;font-size:16px;">Play Again</button>
+            <p style="position:absolute;bottom:10px;width:100%;text-align:center;font-size:14px;color:#fff;">Built by @weirdofact</p>
+        </div>
+    `;
+    document.getElementById("scoreboard").style.display = "none";
+    document.getElementById("play-again").addEventListener("click", showStartScreen);
 }
 
-startBtn.addEventListener("click", startGame);
-playAgainBtn.addEventListener("click", startGame);
+showStartScreen();
