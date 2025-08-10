@@ -11,14 +11,20 @@ let timeLeft = 60;
 let timer;
 let gameActive = false;
 
-
 const endLogo = document.createElement("img");
 endLogo.src = "logo.png";
 endLogo.alt = "Union Logo";
 endLogo.style.width = "100px";
 endLogo.style.display = "block";
-endLogo.style.margin = "0 auto 10px auto";
+endLogo.style.margin = "0 auto 15px auto";
 endScreen.insertBefore(endLogo, endScreen.firstChild);
+
+endScreen.style.display = "flex";
+endScreen.style.flexDirection = "column";
+endScreen.style.alignItems = "center";
+endScreen.style.justifyContent = "center";
+endScreen.style.height = "100%";
+endScreen.style.textAlign = "center";
 
 function startGame() {
     score = 0;
@@ -36,8 +42,9 @@ function endGame() {
     clearInterval(timer);
     gameActive = false;
     finalScore.textContent = score;
-    endScreen.style.display = "block";
     gameArea.innerHTML = "";
+    gameArea.style.display = "none";
+    endScreen.style.display = "flex";
 }
 
 function updateTime() {
